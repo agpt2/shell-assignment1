@@ -1,0 +1,125 @@
+
+S3 SHELL — C VARIABLE REFERENCE
+=========================================
+
+VARIABLE       TYPE             PURPOSE / WHAT IT STORES
+---------------------------------------------------------------------------
+line           char[]           The complete command entered by the user.
+                                Example: "ls -l"
+
+args           char *[]         Array of pointers to the command's strings.
+                                Example: {"ls", "-l", NULL}
+                                args[0] = "ls"
+                                args[1] = "-l"
+                                args[2] = NULL
+
+argsc          int              Number of command arguments, including
+                                the program name, but excluding NULL.
+                                Example: 2 for "ls -l"
+
+token          char *           Pointer to the current word returned
+                                by strtok().
+                                Example: "ls", then "-l", then NULL
+
+shell_prompt   char[]           Text displayed before each command.
+                                Example: "[s3]$ "
+
+argc           int              Number of arguments passed when starting
+                                the s3 shell itself (main function).
+                                Not the number of arguments in a command.
+
+argv           char *[]         Arguments used to start the s3 shell itself
+(in main)                       Example: "./s3 test" gives
+                                argv[0] = "./s3"
+                                argv[1] = "test"
+                                argv[2] = NULL
+
+argv           char *[]         Name commonly used for an argument array
+(in lecture)                    passed into execvp().
+                                In your shell, this is called args.
+
+rc             pid_t / int      Return value from fork() in the lectures.
+                                rc < 0 : fork failed
+                                rc == 0: child process
+                                rc > 0 : parent (value is child's PID)
+
+pid            pid_t            A process ID (unique identifier).
+                                Often stores the result of fork().
+
+---------------------------------------------------------------------------
+CONSTANTS / SPECIAL VALUES
+---------------------------------------------------------------------------
+
+MAX_LINE        1024            Maximum size of the input line buffer.
+MAX_ARGS        128             Maximum size of the argument pointer array.
+MAX_PROMPT_LEN  256             Maximum size of the shell prompt buffer.
+
+ARG_PROGNAME    0               Index of the program name in args.
+ARG_1           1               Index of first additional argument.
+ARG_2           2               Index of second additional argument.
+
+NULL                            Null pointer, meaning "points to nothing".
+                                Used to mark the end of args.
+
+'\0'                            Null character, marking the end of a C string.
+
+---------------------------------------------------------------------------
+IMPORTANT C SYNTAX
+---------------------------------------------------------------------------
+
+char x                 A single character.
+char line[]            An array of characters (can store a C string).
+char *ptr              A pointer to a character / start of a C string.
+char *args[]           An array of pointers to C strings.
+int x                  An integer.
+int *ptr               A pointer to an integer.
+
+&x                     Gets the memory address of x.
+*ptr                   Accesses the value at the address ptr.
+
+args[0]                First element of args (program name).
+args[1]                Second element of args (first argument).
+
+*argsc                 Accesses the original argument count
+                       via a pointer inside parse_command().
+
+(*argsc)++             Increments the original argument count by 1.
+
+---------------------------------------------------------------------------
+IMPORTANT FUNCTIONS
+---------------------------------------------------------------------------
+
+fgets()                Reads user input into line.
+strtok()               Splits line into separate words.
+strlen()               Returns the length of a C string.
+strcmp()               Compares two C strings (0 means equal).
+printf()               Prints formatted output.
+perror()               Prints an error message.
+
+fork()                 Creates a child process.
+execvp()               Replaces the current process's program.
+wait()                 Waits for a child process to terminate.
+exit()                 Terminates the calling process.
+
+---------------------------------------------------------------------------
+EXAMPLE: USER ENTERS "ls -l /home"
+---------------------------------------------------------------------------
+
+line = "ls -l /home"
+
+After parse_command():
+
+args[0] = "ls"          <- Program name
+args[1] = "-l"          <- First argument
+args[2] = "/home"       <- Second argument
+args[3] = NULL          <- End of argument array
+
+argsc = 3
+
+To execute:
+execvp(args[0], args);
+
+First parameter:  "ls"
+Second parameter: {"ls", "-l", "/home", NULL}
+
+execvp does NOT need argsc because args ends with NULL.
