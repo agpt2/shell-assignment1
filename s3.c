@@ -1,9 +1,20 @@
 #include "s3.h"
 
-///Simple for now, but will be expanded in a following section
+
+//prints the shell prompt
 void construct_shell_prompt(char shell_prompt[])
 {
-    strcpy(shell_prompt, "[s3]$ ");
+    char cwd[MAX_DIR_LEN];
+
+    //if doesnt fetch cwd return an error and just print without current directory
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd");
+        strcpy(shell_prompt, "[s3]$ ");
+        return;
+    }
+
+    //print current working directory and 's3'
+    snprintf(shell_prompt, MAX_PROMPT_LEN, "[%s s3]$ ", cwd);
 }
 
 ///Prints a shell prompt and reads input from the user
@@ -81,7 +92,7 @@ void launch_program(char *args[], int argsc)
     ///exits.
     return;
 }
-
+//checks if any of the arguments have redirection symbols
 int command_with_redirection(char *args[], int argsc){
     for(int i = 0; i < argsc; i++){
         if(strcmp(args[i], "<") == 0 ||
@@ -192,4 +203,53 @@ void child_with_input_redirected(char *args[], int i)
     args[i] = NULL;
 
     child(args, i);
+}
+
+void init_lwd(char lwd[]){
+    if (getcwd(lwd, MAX_LINE) == NULL) {
+        perror("getcwd failed");
+        exit(EXIT_FAILURE);
+    }   
+}
+
+int is_cd(char *args[], int argsc){
+    return argsc > 0 && strcmp(args[0], "cd") == 0;
+}
+
+
+void run_cd(char *args[], int argsc, char lwd[])
+{
+    char cwd[MAX_DIR_LEN];
+    const char *destination;
+
+    if (argsc > 2) {
+        fprintf(stderr, "cd: too many arguments\n");
+        return;
+    }
+    //plain cd
+    if (argsc == 1) {
+        destination = getenv("HOME");  // cd
+        if (destination == NULL) {
+            fprintf(stderr, "cd: HOME is not set\n");
+            return;
+        }
+    }
+    else if (strcmp(args[1], "-") == 0) {
+        destination = lwd;              // cd -
+    }
+    else {
+        destination = args[1];          // cd txt, cd .., etc.
+    }
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd");
+        return;
+    }
+
+    if (chdir(destination) == -1) {
+        perror("cd");
+        return;
+    }
+
+    strcpy(lwd, cwd);
 }

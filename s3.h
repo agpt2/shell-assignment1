@@ -15,6 +15,8 @@
 #define MAX_LINE 1024
 #define MAX_ARGS 128
 #define MAX_PROMPT_LEN 256
+#define MAX_DIR_LEN (MAX_PROMPT_LEN - 6)
+
 
 ///Enum for readable argument indices (use where required)
 enum ArgIndex
@@ -48,5 +50,9 @@ int command_with_redirection(char *args[], int argsc);
 void launch_program_with_redirection(char *args[], int argsc);
 void child_with_output_redirected(char *args[], int i);
 void child_with_input_redirected(char *args[], int i);
+
+void init_lwd(char lwd[]);
+int is_cd(char *args[], int argsc);
+void run_cd(char *args[], int argsc, char lwd[]);
 
 #endif

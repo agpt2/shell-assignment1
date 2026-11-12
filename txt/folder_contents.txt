@@ -1,0 +1,13 @@
+README.md
+reference.txt
+s3
+s3.c
+s3.h
+s3main.c
+txt
+
+./txt:
+calendar.txt
+folder_contents.txt
+phrases.txt
+phrases_sorted.txt
